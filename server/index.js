@@ -1,5 +1,5 @@
 require('dotenv').config();
-const path = require('path');
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
@@ -11,7 +11,7 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors());
 app.use(express.json());
 init();
 
@@ -249,15 +249,14 @@ app.get('/team', authenticate, async (req, res) => {
   res.json({ members });
 });
 
-const clientDist = path.join(__dirname, '../client/dist');
-app.use(express.static(clientDist));
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/auth') || req.path.startsWith('/projects') || req.path.startsWith('/tasks') || req.path.startsWith('/dashboard') || req.path.startsWith('/team') || req.path.startsWith('/users')) {
-    return res.status(404).json({ error: 'Endpoint not found' });
-  }
-  res.sendFile(path.join(clientDist, 'index.html'));
+app.use((req, res) => {
+  res.status(404).json({ error: 'Endpoint not found' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

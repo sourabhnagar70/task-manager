@@ -54,7 +54,17 @@ git branch -M main
 git push -u origin main
 ```
 
-### Deploy on Railway
+### Deploy on Vercel
+1. Install Vercel CLI: `npm i -g vercel`
+2. Login: `vercel login`
+3. Deploy: `vercel`
+4. Set environment variables:
+   - `JWT_SECRET` = your secret
+5. Vercel will build and deploy both frontend and backend.
+
+**Note:** SQLite works for demo purposes, but for production consider using a cloud database like PlanetScale or Vercel Postgres.
+
+### Alternative: Railway Deployment
 1. Create a new Railway project.
 2. Connect your GitHub repository.
 3. Set the root folder to `server`.
