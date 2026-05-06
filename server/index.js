@@ -97,7 +97,7 @@ const ensureAdminUser = async () => {
 
 ensureAdminUser();
 
-app.post('/auth/signup', async (req, res) => {
+app.post('/api/auth/signup', async (req, res) => {
   try {
     const data = authSchema.parse(req.body);
     if (!data.name) return res.status(400).json({ error: 'Name is required' });
@@ -117,7 +117,7 @@ app.post('/auth/signup', async (req, res) => {
   }
 });
 
-app.post('/auth/login', async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   try {
     const data = authSchema.pick({ email: true, password: true }).parse(req.body);
     const user = await getUserByEmail(data.email);
@@ -131,7 +131,7 @@ app.post('/auth/login', async (req, res) => {
   }
 });
 
-app.get('/auth/profile', authenticate, async (req, res) => {
+app.get('/api/auth/profile', authenticate, async (req, res) => {
   try {
     const user = await getUserById(req.user.id);
     res.json({ user });
@@ -140,12 +140,12 @@ app.get('/auth/profile', authenticate, async (req, res) => {
   }
 });
 
-app.get('/users', authenticate, requireAdmin, async (req, res) => {
+app.get('/api/users', authenticate, requireAdmin, async (req, res) => {
   const users = await allSql('SELECT id, name, email, role FROM users ORDER BY created_at DESC');
   res.json({ users });
 });
 
-app.get('/projects', authenticate, async (req, res) => {
+app.get('/api/projects', authenticate, async (req, res) => {
   const projects = await allSql(
     `SELECT p.id, p.name, p.description, p.owner_id, u.name AS owner_name, p.created_at
      FROM projects p
@@ -155,7 +155,7 @@ app.get('/projects', authenticate, async (req, res) => {
   res.json({ projects });
 });
 
-app.post('/projects', authenticate, requireAdmin, async (req, res) => {
+app.post('/api/projects', authenticate, requireAdmin, async (req, res) => {
   const projectSchema = z.object({ name: z.string().min(3), description: z.string().optional() });
   try {
     const data = projectSchema.parse(req.body);
@@ -170,7 +170,7 @@ app.post('/projects', authenticate, requireAdmin, async (req, res) => {
   }
 });
 
-app.get('/projects/:id/tasks', authenticate, async (req, res) => {
+app.get('/api/projects/:id/tasks', authenticate, async (req, res) => {
   const projectId = Number(req.params.id);
   const tasks = await allSql(
     `SELECT t.*, u.name AS assignee_name
@@ -183,7 +183,7 @@ app.get('/projects/:id/tasks', authenticate, async (req, res) => {
   res.json({ tasks });
 });
 
-app.post('/tasks', authenticate, requireAdmin, async (req, res) => {
+app.post('/api/tasks', authenticate, requireAdmin, async (req, res) => {
   const taskSchema = z.object({
     title: z.string().min(3),
     description: z.string().optional(),
@@ -204,7 +204,7 @@ app.post('/tasks', authenticate, requireAdmin, async (req, res) => {
   }
 });
 
-app.get('/tasks', authenticate, async (req, res) => {
+app.get('/api/tasks', authenticate, async (req, res) => {
   const query = req.user.role === 'admin'
     ? `SELECT t.*, p.name AS project_name, u.name AS assignee_name FROM tasks t LEFT JOIN projects p ON p.id = t.project_id LEFT JOIN users u ON u.id = t.assignee_id ORDER BY t.created_at DESC`
     : `SELECT t.*, p.name AS project_name, u.name AS assignee_name FROM tasks t LEFT JOIN projects p ON p.id = t.project_id LEFT JOIN users u ON u.id = t.assignee_id WHERE t.assignee_id = ? ORDER BY t.created_at DESC`;
@@ -213,7 +213,7 @@ app.get('/tasks', authenticate, async (req, res) => {
   res.json({ tasks });
 });
 
-app.patch('/tasks/:id', authenticate, async (req, res) => {
+app.patch('/api/tasks/:id', authenticate, async (req, res) => {
   const taskId = Number(req.params.id);
   const updateSchema = z.object({ status: z.enum(['todo', 'in-progress', 'done']), title: z.string().min(3).optional(), description: z.string().optional(), assignee_id: z.number().int().optional(), due_date: z.string().optional() });
   try {
@@ -241,7 +241,7 @@ app.patch('/tasks/:id', authenticate, async (req, res) => {
   }
 });
 
-app.get('/dashboard', authenticate, async (req, res) => {
+app.get('/api/dashboard', authenticate, async (req, res) => {
   const totalTasks = await getSql('SELECT COUNT(*) AS count FROM tasks');
   const pending = await getSql(`SELECT COUNT(*) AS count FROM tasks WHERE status != 'done'`);
   const overdue = await getSql(`SELECT COUNT(*) AS count FROM tasks WHERE due_date IS NOT NULL AND due_date < ? AND status != 'done'`, [new Date().toISOString()]);
@@ -250,7 +250,7 @@ app.get('/dashboard', authenticate, async (req, res) => {
   res.json({ summary: { totalTasks: totalTasks.count, pending: pending.count, overdue: overdue.count, projects: projects.count, tasksByStatus } });
 });
 
-app.get('/team', authenticate, async (req, res) => {
+app.get('/api/team', authenticate, async (req, res) => {
   const members = await allSql('SELECT id, name, email, role FROM users ORDER BY name');
   res.json({ members });
 });
