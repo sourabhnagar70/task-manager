@@ -1,5 +1,5 @@
 require('dotenv').config();
-require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
@@ -14,6 +14,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 app.use(cors());
 app.use(express.json());
 init();
+
+const clientDist = path.join(__dirname, '../client/dist');
+if (process.env.NODE_ENV !== 'test') {
+  app.use(express.static(clientDist));
+}
+
 
 const authSchema = z.object({
   email: z.string().email(),
@@ -249,8 +255,8 @@ app.get('/team', authenticate, async (req, res) => {
   res.json({ members });
 });
 
-app.use((req, res) => {
-  res.status(404).json({ error: 'Endpoint not found' });
+app.get('*', (req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'));
 });
 
 if (require.main === module) {

@@ -54,23 +54,30 @@ git branch -M main
 git push -u origin main
 ```
 
-### Deploy on Vercel
-1. Install Vercel CLI: `npm i -g vercel`
-2. Login: `vercel login`
-3. Deploy: `vercel`
-4. Set environment variables:
+### Deploy on Render (Free)
+Render is a better choice for your app because it supports persistent disk and a Node backend with SQLite.
+
+1. Go to `https://render.com` and sign up or log in.
+2. Click `New` → `Web Service`.
+3. Connect your GitHub account and select `sourabhnagar70/task-manager`.
+4. Set the root directory to `server`.
+5. Set the runtime to `Node`.
+6. Set the build command to:
+   ```bash
+   npm install
+   ```
+7. Set the start command to:
+   ```bash
+   npm start
+   ```
+8. Add environment variables:
    - `JWT_SECRET` = your secret
-5. Vercel will build and deploy both frontend and backend.
+9. Deploy.
 
-**Note:** SQLite works for demo purposes, but for production consider using a cloud database like PlanetScale or Vercel Postgres.
+Render will install dependencies, build the client from `server/postinstall`, and run your app.
 
-### Alternative: Railway Deployment
-1. Create a new Railway project.
-2. Connect your GitHub repository.
-3. Set the root folder to `server`.
-4. Set environment variables:
-   - `JWT_SECRET` = your secret
-   - `PORT` = `4000`
-5. Railway will run `npm install` and then `npm start`.
+### Vercel (Not Recommended for SQLite)
+Vercel can host the frontend and serverless functions, but SQLite is not ideal there because the filesystem is ephemeral.
+If you still want Vercel, you must move to a cloud database like PlanetScale or Vercel Postgres first.
 
-This app is configured so the backend can serve the built React frontend from `client/dist`.
+This app is configured so the backend can serve the built React frontend from `client/dist` when deployed from `server`.
