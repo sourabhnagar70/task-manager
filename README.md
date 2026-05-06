@@ -41,3 +41,26 @@ A full-stack team task manager with authentication, role-based access, project m
 - Backend runs on `http://localhost:4000`
 - Frontend runs on `http://localhost:5173`
 - Default admin user is created automatically if none exists
+
+## GitHub and Deployment
+
+### Push to GitHub
+If you already created a repo on GitHub, add it as remote and push:
+
+```bash
+cd "c:\Users\soura\OneDrive\Desktop\task manager"
+git remote add origin https://github.com/<your-username>/<your-repo>.git
+git branch -M main
+git push -u origin main
+```
+
+### Deploy on Railway
+1. Create a new Railway project.
+2. Connect your GitHub repository.
+3. Set the root folder to `server`.
+4. Set environment variables:
+   - `JWT_SECRET` = your secret
+   - `PORT` = `4000`
+5. Railway will run `npm install` and then `npm start`.
+
+This app is configured so the backend can serve the built React frontend from `client/dist`.

@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
@@ -248,8 +249,13 @@ app.get('/team', authenticate, async (req, res) => {
   res.json({ members });
 });
 
-app.use((req, res) => {
-  res.status(404).json({ error: 'Endpoint not found' });
+const clientDist = path.join(__dirname, '../client/dist');
+app.use(express.static(clientDist));
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/auth') || req.path.startsWith('/projects') || req.path.startsWith('/tasks') || req.path.startsWith('/dashboard') || req.path.startsWith('/team') || req.path.startsWith('/users')) {
+    return res.status(404).json({ error: 'Endpoint not found' });
+  }
+  res.sendFile(path.join(clientDist, 'index.html'));
 });
 
 app.listen(PORT, () => {
