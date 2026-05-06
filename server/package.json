@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "build": "cd ../client && npm install && npm run build",
-    "postinstall": "cd ../client && npm install && npm run build"
+    "build": "echo 'Building client...' && cd ../client && npm install && npm run build",
+    "postinstall": "echo 'Postinstall: Building client...' && cd ../client && npm install && npm run build"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
